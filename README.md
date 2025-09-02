@@ -39,7 +39,7 @@ the provided `.env.sample` and adjust common settings as needed:
 - `SYMBOL_SYNC_INTERVAL_SEC` – how frequently to perform the symbol refresh.
 - `QUOTE_ASSETS` – quote assets to include when syncing symbols.
 - `DB_URL` – database connection string (`sqlite:///...` by default).
-- `DB_POOL_SIZE` – size of the async database connection pool.
+- `DB_POOL_SIZE` – size of the async database connection pool (default 10).
 - `CACHE_URL` – Redis connection used for shared caching across instances.
 - `CACHE_TTL_SEC_KLINES` – TTL for recently fetched klines in the cache.
 - `LOG_LEVEL` – logging verbosity (`INFO`, `DEBUG`, …).
@@ -70,7 +70,7 @@ aggregator and controlling initial backfill behavior.
 Optional services:
 
 - Set `CACHE_URL` to enable Redis caching (e.g., `redis://localhost:6379/0`).
-- Set `DB_URL` to use PostgreSQL instead of the default SQLite (e.g., `postgresql://user:pass@localhost:5432/dbname`).
+- Set `DB_URL` to use PostgreSQL instead of the default SQLite (e.g., `postgresql://user:pass@localhost:5432/dbname`) for high-concurrency workloads and tune `DB_POOL_SIZE` accordingly.
 
 ## Example Usage
 
@@ -93,8 +93,8 @@ curl http://localhost:8000/v1/health
 - 通过环境变量 `DB_URL` 可以切换数据库，例如：
   - `sqlite:///data/klines.db`
   - `postgresql://user:pass@host:5432/dbname`
-- `DB_POOL_SIZE` 控制连接池大小（默认 5）。
-- 如需更强的并发与稳定性，可迁移到 PostgreSQL（使用 `asyncpg` 驱动）。
+- `DB_POOL_SIZE` 控制连接池大小（默认 10）。
+- 如需更高并发与稳定性，建议切换到 PostgreSQL 并相应调整 `DB_POOL_SIZE`（使用 `asyncpg` 驱动）。
 
 ## External Cache
 

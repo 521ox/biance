@@ -75,7 +75,7 @@ async def ensure_schema(db_url: str):
 class SqliteConnectionPool:
     """A very small async connection pool for sqlite."""
 
-    def __init__(self, path: str, size: int = 5):
+    def __init__(self, path: str, size: int = 10):
         self.path = path
         self.size = size
         self._pool: asyncio.Queue[aiosqlite.Connection] = asyncio.Queue(maxsize=size)
@@ -114,7 +114,7 @@ class SqliteConnectionPool:
 
 
 class SqliteKlineRepo:
-    def __init__(self, db_url: str, pool_size: int = 5):
+    def __init__(self, db_url: str, pool_size: int = 10):
         self.path = db_url.replace("sqlite:///", "")
         self._pool = SqliteConnectionPool(self.path, pool_size)
 
