@@ -20,9 +20,9 @@ class LRUCache:
                 return None
             self._d.move_to_end(key)
             return data
-    async def set_bytes(self, key: str, data: bytes, ttl_ms: int):
+    async def set_bytes(self, key: str, data: bytes, ttl_s: int):
         async with self._lock:
-            expire = time.time() + max(1, ttl_ms // 1000)
+            expire = time.time() + max(1, ttl_s)
             self._d[key] = (data, expire)
             self._d.move_to_end(key)
             while len(self._d) > self.max_items:
