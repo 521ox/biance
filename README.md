@@ -13,12 +13,14 @@
 
 ## Quickstart
 ```bash
+cp .env.sample biance-main/.env
 cd biance-main
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.sample .env
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
+
+Edit `biance-main/.env` as needed to configure variables such as `SYMBOLS` and `DB_URL` before starting the server.
 
 ## Storage Notes
 
