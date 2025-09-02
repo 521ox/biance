@@ -14,8 +14,10 @@ def serialize_binance_klines(bars):
     return orjson.dumps(out)
 
 class GetKlines:
-    def __init__(self, repo: KlineRepo, cache: Cache, ttl_ms: int=10000):
-        self.repo=repo; self.cache=cache; self.ttl_s=max(1, ttl_ms//1000)
+    def __init__(self, repo: KlineRepo, cache: Cache, ttl_s: int=10):
+        self.repo = repo
+        self.cache = cache
+        self.ttl_s = max(1, ttl_s)
     async def handle(self, symbol: str, interval: str,
                      start: Optional[int], end: Optional[int], limit: int,
                      only_final: bool=True):

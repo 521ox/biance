@@ -34,7 +34,7 @@ async def build_app_state() -> AppState:
 
     l1_cache = LRUCache(max_items=10000)
 
-    use_get_klines = GetKlines(kline_repo, l1_cache, ttl_ms=settings.cache_ttl_ms_klines)
+    use_get_klines = GetKlines(kline_repo, l1_cache, ttl_s=settings.cache_ttl_sec_klines)
     use_health = HealthSnapshot(kline_repo)
 
     return AppState(

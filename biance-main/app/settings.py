@@ -15,11 +15,14 @@ class Settings(BaseSettings):
     auto_sync_symbols: bool = Field(default=True, alias="AUTO_SYNC_SYMBOLS")
     symbol_sync_interval_sec: int = Field(default=300, alias="SYMBOL_SYNC_INTERVAL_SEC")
     quote_assets: List[str] = Field(default_factory=lambda: ["USDT"], alias="QUOTE_ASSETS")
+    cache_ttl_sec_klines: int = Field(default=10, alias="CACHE_TTL_SEC_KLINES")
+    fetch_concurrency: int = Field(default=1, alias="FETCH_CONCURRENCY")
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "allow"
 
     @field_validator("symbols", "intervals", mode="before")
     @classmethod
