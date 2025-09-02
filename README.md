@@ -20,6 +20,11 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
+The default requirements now include [`orjson`](https://pypi.org/project/orjson/)
+for fast JSON serialization and
+[`pydantic-settings[dotenv]`](https://docs.pydantic.dev/latest/concepts/pydantic_settings/)
+to load configuration from `.env` files.
+
 Edit `biance-main/.env` as needed to configure variables such as `SYMBOLS` and `DB_URL` before starting the server.
 
 ## Storage Notes
