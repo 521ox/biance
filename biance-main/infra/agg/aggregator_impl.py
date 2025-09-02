@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 from time import time
 from domain.models import Interval, Bar
-from infra.db.sqlite_repo import SqliteKlineRepo
+from domain.ports import KlineRepo
 from .ring_buffer import RingBuffer
 
 MS = {
@@ -18,7 +18,7 @@ def bucket_start_ms(ts_ms: int, interval_ms: int) -> int:
     return (ts_ms // interval_ms) * interval_ms
 
 class Aggregator:
-    def __init__(self, repo: SqliteKlineRepo):
+    def __init__(self, repo: KlineRepo):
         self.repo = repo
         self.ring = RingBuffer(capacity=5)
 
