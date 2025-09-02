@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict, Optional
 from time import time
 from domain.models import Interval, Bar
@@ -87,6 +88,20 @@ class Aggregator:
                     "open": b.open, "high": b.high, "low": b.low, "close": b.close
                 })
 
-    async def aggregate_all(self, symbol: str):
-        for t in (Interval.m3, Interval.m5, Interval.m15, Interval.h1, Interval.h4, Interval.d1):
-            await self.aggregate_symbol(symbol, t)
+    async def aggregate_all(self, symbol: str, limit: int = 3):
+        sem = asyncio.Semaphore(limit)
+
+        async def _run(itv: Interval):
+            async with sem:
+                await self.aggregate_symbol(symbol, itv)
+
+        await asyncio.gather(*(
+            _run(t) for t in (
+                Interval.m3,
+                Interval.m5,
+                Interval.m15,
+                Interval.h1,
+                Interval.h4,
+                Interval.d1,
+            )
+        ))
