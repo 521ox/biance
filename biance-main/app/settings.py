@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     # --- new configuration fields ---
     log_level: str = Field("INFO", alias="LOG_LEVEL")
     db_url: str = Field("sqlite:///data/klines.db", alias="DB_URL")
+    db_pool_size: int = Field(5, alias="DB_POOL_SIZE")
     binance_base: str = Field("https://fapi.binance.com", alias="BINANCE_BASE")
     enable_fetcher: bool = Field(True, alias="ENABLE_FETCHER")
     enable_aggregator: bool = Field(True, alias="ENABLE_AGGREGATOR")

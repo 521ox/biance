@@ -146,14 +146,23 @@ class SqliteKlineRepo:
               taker_buy_quote=excluded.taker_buy_quote, is_final=excluded.is_final
         """
         async with self._pool.acquire() as db:
-            await db.execute("BEGIN")
-            await db.executemany(q, [
-                (b.symbol, b.open_time, b.open, b.high, b.low, b.close, b.volume,
-                 b.close_time, b.quote_volume, b.trades, b.taker_buy_base, b.taker_buy_quote,
-                 1 if b.is_final else 0)
-                for b in bars
-            ])
-            await db.commit()
+            last_err = None
+            for _ in range(5):
+                try:
+                    await db.execute("BEGIN")
+                    await db.executemany(q, [
+                        (b.symbol, b.open_time, b.open, b.high, b.low, b.close, b.volume,
+                         b.close_time, b.quote_volume, b.trades, b.taker_buy_base, b.taker_buy_quote,
+                         1 if b.is_final else 0)
+                        for b in bars
+                    ])
+                    await db.commit()
+                    return
+                except aiosqlite.OperationalError as e:
+                    await db.rollback()
+                    last_err = e
+                    await asyncio.sleep(0.1)
+            raise last_err
 
     async def query(self, symbol: str, interval: Interval,
                     start: Optional[int], end: Optional[int], limit: int,

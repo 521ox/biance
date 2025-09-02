@@ -2,7 +2,7 @@ import math, time, asyncio
 from typing import List, Optional
 from app.settings import Settings
 from infra.fetch.binance_client import BinanceClient
-from infra.db.sqlite_repo import SqliteKlineRepo
+from domain.ports import KlineRepo
 from domain.models import Bar, Interval
 
 MS = {
@@ -33,11 +33,10 @@ async def _rows_to_bars(rows: list, symbol: str, interval: Interval):
     return out
 
 class Fetcher:
-    def __init__(self, settings: Settings, repo: SqliteKlineRepo):
+    def __init__(self, settings: Settings, repo: KlineRepo):
         self.s = settings
         self.repo = repo
         self.client = BinanceClient(settings.binance_base, concurrency=settings.fetch_concurrency)
-        self._write_lock = asyncio.Lock()
 
     async def aclose(self):
         await self.client.aclose()
@@ -129,5 +128,4 @@ class Fetcher:
             end_ms = first_open - 1
 
     async def _upsert_bars(self, bars: List[Bar]):
-        async with self._write_lock:
-            await self.repo.upsert(bars)
+        await self.repo.upsert(bars)

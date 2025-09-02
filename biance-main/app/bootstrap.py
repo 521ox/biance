@@ -4,8 +4,10 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from app.settings import Settings
+from domain.ports import KlineRepo
 from infra.observability.logging import configure_logging
-from infra.db.sqlite_repo import SqliteKlineRepo, ensure_schema
+from infra.db.sqlite_repo import SqliteKlineRepo, ensure_schema as ensure_sqlite_schema
+from infra.db.postgres_repo import PostgresKlineRepo, ensure_schema as ensure_pg_schema
 from infra.cache.lru_cache import LRUCache
 from domain.usecases import GetKlines, HealthSnapshot
 from infra.fetch.fetcher_impl import Fetcher
@@ -14,7 +16,7 @@ from infra.agg.aggregator_impl import Aggregator
 @dataclass
 class AppState:
     settings: Settings
-    kline_repo: SqliteKlineRepo
+    kline_repo: KlineRepo
     l1_cache: LRUCache
     use_get_klines: GetKlines
     use_health: HealthSnapshot
@@ -27,9 +29,12 @@ async def build_app_state() -> AppState:
     os.makedirs("./data", exist_ok=True)
     configure_logging(settings.log_level)
 
-    kline_repo = SqliteKlineRepo(settings.db_url)
-
-    await ensure_schema(settings.db_url)
+    if settings.db_url.startswith("postgres"):
+        kline_repo = PostgresKlineRepo(settings.db_url, pool_size=settings.db_pool_size)
+        await ensure_pg_schema(settings.db_url)
+    else:
+        kline_repo = SqliteKlineRepo(settings.db_url, pool_size=settings.db_pool_size)
+        await ensure_sqlite_schema(settings.db_url)
     await kline_repo.connect()
 
     l1_cache = LRUCache(max_items=10000)

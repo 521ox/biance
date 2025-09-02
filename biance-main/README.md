@@ -22,4 +22,8 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ## Storage Notes
 
 - 默认使用 SQLite，应用启动时会复用单一连接，并启用 WAL 及 `busy_timeout` 以减少锁冲突。
-- 如需更强的并发与稳定性，可迁移到 PostgreSQL 或 MySQL，并使用相应的异步驱动与连接池。
+- 通过环境变量 `DB_URL` 可以切换数据库，例如：
+  - `sqlite:///data/klines.db`
+  - `postgresql://user:pass@host:5432/dbname`
+- `DB_POOL_SIZE` 控制连接池大小（默认 5）。
+- 如需更强的并发与稳定性，可迁移到 PostgreSQL（使用 `asyncpg` 驱动）。

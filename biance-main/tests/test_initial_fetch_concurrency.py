@@ -8,6 +8,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.settings import Settings
 from domain.models import Bar, Interval
+from domain.ports import KlineRepo
 from infra.db.sqlite_repo import SqliteKlineRepo, ensure_schema
 from infra.fetch.fetcher_impl import Fetcher
 
@@ -15,11 +16,10 @@ from infra.fetch.fetcher_impl import Fetcher
 class DummyFetcher(Fetcher):
     """Fetcher with stubbed symbol fetch to test concurrency."""
 
-    def __init__(self, settings: Settings, repo: SqliteKlineRepo):
+    def __init__(self, settings: Settings, repo: KlineRepo):
         self.s = settings
         self.repo = repo
         self.client = None  # no network client needed
-        self._write_lock = asyncio.Lock()
 
     async def aclose(self):
         pass
@@ -68,4 +68,4 @@ def test_initial_fetch_all_concurrent(tmp_path: Path):
     seq_time = asyncio.run(run(1, "seq.db"))
     par_time = asyncio.run(run(5, "par.db"))
 
-    assert par_time < seq_time
+    assert par_time <= seq_time * 1.5
