@@ -1,8 +1,11 @@
-from typing import List
+from typing import List, Optional
 try:
     from pydantic_settings import BaseSettings
 except Exception:  # pragma: no cover
-    from pydantic import BaseSettings  # type: ignore
+    from pydantic import BaseModel, ConfigDict
+
+    class BaseSettings(BaseModel):  # type: ignore
+        model_config = ConfigDict(populate_by_name=True)
 from pydantic import Field, field_validator
 
 class Settings(BaseSettings):
@@ -15,6 +18,19 @@ class Settings(BaseSettings):
     auto_sync_symbols: bool = Field(default=True, alias="AUTO_SYNC_SYMBOLS")
     symbol_sync_interval_sec: int = Field(default=300, alias="SYMBOL_SYNC_INTERVAL_SEC")
     quote_assets: List[str] = Field(default_factory=lambda: ["USDT"], alias="QUOTE_ASSETS")
+
+    # --- new configuration fields ---
+    log_level: str = Field("INFO", alias="LOG_LEVEL")
+    db_url: str = Field("sqlite:///data/klines.db", alias="DB_URL")
+    binance_base: str = Field("https://fapi.binance.com", alias="BINANCE_BASE")
+    enable_fetcher: bool = Field(True, alias="ENABLE_FETCHER")
+    enable_aggregator: bool = Field(True, alias="ENABLE_AGGREGATOR")
+    cache_ttl_ms_klines: int = Field(60_000, alias="CACHE_TTL_MS_KLINES")
+    fetch_concurrency: int = Field(8, alias="FETCH_CONCURRENCY")
+    init_backfill_days: int = Field(0, alias="INIT_BACKFILL_DAYS")
+    backfill_pull_4h: bool = Field(False, alias="BACKFILL_PULL_4H")
+    init_pull_4h: Optional[int] = Field(None, alias="INIT_PULL_4H")
+    init_pull_1m: Optional[int] = Field(None, alias="INIT_PULL_1M")
 
     class Config:
         env_file = ".env"
