@@ -20,10 +20,10 @@ class KlineETagMiddleware(BaseHTTPMiddleware):
             resp = new_resp
         else:
             body = await resp.body()
-        etag = hashlib.md5(body).hexdigest()
+        etag = '"' + hashlib.md5(body).hexdigest() + '"'
         inm = request.headers.get("if-none-match")
         if inm and inm == etag:
-            return Response(status_code=304)
+            return Response(status_code=304, headers={"ETag": etag, "Cache-Control": "public, max-age=10"})
         resp.headers.setdefault("ETag", etag)
         resp.headers.setdefault("Cache-Control", "public, max-age=10")
         return resp
