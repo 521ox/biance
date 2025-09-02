@@ -27,3 +27,9 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
   - `postgresql://user:pass@host:5432/dbname`
 - `DB_POOL_SIZE` 控制连接池大小（默认 5）。
 - 如需更强的并发与稳定性，可迁移到 PostgreSQL（使用 `asyncpg` 驱动）。
+
+## External Cache
+
+- 通过环境变量 `CACHE_URL` 配置 Redis（例如 `redis://localhost:6379/0`）即可启用外部缓存。
+- 启用后，应用的一级缓存与聚合结果 RingBuffer 都会使用 Redis 存储，实现多实例间共享。
+- 如未设置 `CACHE_URL`，则使用进程内 LRU 缓存和本地 RingBuffer。

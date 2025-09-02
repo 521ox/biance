@@ -5,6 +5,7 @@ asyncpg>=0.29
 fastapi>=0.111
 uvicorn[standard]>=0.30
 prometheus-fastapi-instrumentator>=7.0.0
+redis>=5.0
 
 # dev tools (optional)
 ruff>=0.5
