@@ -27,6 +27,30 @@ to load configuration from `.env` files.
 
 Edit `biance-main/.env` as needed to configure variables such as `SYMBOLS` and `DB_URL` before starting the server.
 
+## Manual Deployment
+
+1. **Install system packages**
+   ```bash
+   sudo apt update
+   sudo apt install -y python3 python3-venv python3-dev build-essential
+   ```
+2. **Create a virtual environment and install dependencies**
+   ```bash
+   cd biance-main
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+3. **Launch the application**
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+   ```
+
+Optional services:
+
+- Set `CACHE_URL` to enable Redis caching (e.g., `redis://localhost:6379/0`).
+- Set `DB_URL` to use PostgreSQL instead of the default SQLite (e.g., `postgresql://user:pass@localhost:5432/dbname`).
+
 ## Storage Notes
 
 - 默认使用 SQLite，应用启动时会复用单一连接，并启用 WAL 及 `busy_timeout` 以减少锁冲突。
