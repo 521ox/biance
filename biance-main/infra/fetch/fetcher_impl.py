@@ -37,6 +37,8 @@ class Fetcher:
         self.s = settings
         self.repo = repo
         self.client = BinanceClient(settings.binance_base, concurrency=settings.fetch_concurrency)
+        # write locks per symbol to avoid concurrent writes on same symbol
+        self._write_lock: dict[str, asyncio.Lock] = {}
 
     async def aclose(self):
         await self.client.aclose()
@@ -128,4 +130,12 @@ class Fetcher:
             end_ms = first_open - 1
 
     async def _upsert_bars(self, bars: List[Bar]):
-        await self.repo.upsert(bars)
+        if not bars:
+            return
+        sym = bars[0].symbol
+        locks = getattr(self, "_write_lock", None)
+        if locks is None:
+            locks = self._write_lock = {}
+        lock = locks.setdefault(sym, asyncio.Lock())
+        async with lock:
+            await self.repo.upsert(bars)
