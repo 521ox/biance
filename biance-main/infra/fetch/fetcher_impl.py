@@ -1,5 +1,6 @@
 import math, time, asyncio
-from typing import List, Optional
+from typing import Iterable, List, Optional
+from weakref import WeakValueDictionary
 from app.settings import Settings
 from infra.fetch.binance_client import BinanceClient
 from domain.ports import KlineRepo
@@ -37,8 +38,9 @@ class Fetcher:
         self.s = settings
         self.repo = repo
         self.client = BinanceClient(settings.binance_base, concurrency=settings.fetch_concurrency)
-        # write locks per symbol to avoid concurrent writes on same symbol
-        self._write_lock: dict[str, asyncio.Lock] = {}
+        # write locks per symbol to avoid concurrent writes on same symbol.  WeakValueDictionary
+        # allows locks for inactive symbols to be GC'd automatically to avoid unbounded growth.
+        self._write_lock: WeakValueDictionary[str, asyncio.Lock] = WeakValueDictionary()
 
     async def aclose(self):
         await self.client.aclose()
@@ -135,7 +137,22 @@ class Fetcher:
         sym = bars[0].symbol
         locks = getattr(self, "_write_lock", None)
         if locks is None:
-            locks = self._write_lock = {}
-        lock = locks.setdefault(sym, asyncio.Lock())
+            locks = self._write_lock = WeakValueDictionary()
+        lock = locks.get(sym)
+        if lock is None:
+            lock = asyncio.Lock()
+            locks[sym] = lock
         async with lock:
             await self.repo.upsert(bars)
+
+    def on_symbols_removed(self, symbols: Iterable[str]) -> None:
+        """Remove locks for symbols that are no longer active.
+
+        Should be invoked when :class:`SymbolRegistry` reports symbols being
+        removed so that leftover locks do not accumulate indefinitely.
+        """
+        locks = getattr(self, "_write_lock", None)
+        if not locks:
+            return
+        for sym in symbols:
+            locks.pop(sym, None)
