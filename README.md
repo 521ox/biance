@@ -27,6 +27,27 @@ to load configuration from `.env` files.
 
 Edit `biance-main/.env` as needed to configure variables such as `SYMBOLS` and `DB_URL` before starting the server.
 
+## Configuration
+
+The service is driven by environment variables loaded from a `.env` file. Copy
+the provided `.env.sample` and adjust common settings as needed:
+
+- `SYMBOLS` – comma‑separated trading pairs to fetch (e.g. `BTCUSDT,ETHUSDT`).
+- `INTERVALS` – list of candlestick intervals to maintain (e.g. `1m,5m,1h`).
+- `BACKFILL_DAYS` – number of days of historical data to pre‑load on startup.
+- `AUTO_SYNC_SYMBOLS` – automatically refresh the tradable symbol list.
+- `SYMBOL_SYNC_INTERVAL_SEC` – how frequently to perform the symbol refresh.
+- `QUOTE_ASSETS` – quote assets to include when syncing symbols.
+- `DB_URL` – database connection string (`sqlite:///...` by default).
+- `DB_POOL_SIZE` – size of the async database connection pool.
+- `CACHE_URL` – Redis connection used for shared caching across instances.
+- `CACHE_TTL_SEC_KLINES` – TTL for recently fetched klines in the cache.
+- `LOG_LEVEL` – logging verbosity (`INFO`, `DEBUG`, …).
+- `FETCH_CONCURRENCY` – number of concurrent fetcher workers.
+
+See `.env.sample` for additional tunables such as toggling the fetcher or
+aggregator and controlling initial backfill behavior.
+
 ## Manual Deployment
 
 1. **Install system packages**
@@ -51,6 +72,21 @@ Optional services:
 - Set `CACHE_URL` to enable Redis caching (e.g., `redis://localhost:6379/0`).
 - Set `DB_URL` to use PostgreSQL instead of the default SQLite (e.g., `postgresql://user:pass@localhost:5432/dbname`).
 
+## Example Usage
+
+With the server running, you can exercise the API with tools like `curl`:
+
+```bash
+# Fetch recent klines
+curl 'http://localhost:8000/fapi/v1/klines?symbol=BTCUSDT&interval=1m&limit=5'
+
+# Refresh the symbol registry
+curl -X POST http://localhost:8000/v1/admin/symbols/refresh
+
+# Health check
+curl http://localhost:8000/v1/health
+```
+
 ## Storage Notes
 
 - 默认使用 SQLite，应用启动时会复用单一连接，并启用 WAL 及 `busy_timeout` 以减少锁冲突。
@@ -65,3 +101,10 @@ Optional services:
 - 通过环境变量 `CACHE_URL` 配置 Redis（例如 `redis://localhost:6379/0`）即可启用外部缓存。
 - 启用后，应用的一级缓存与聚合结果 RingBuffer 都会使用 Redis 存储，实现多实例间共享。
 - 如未设置 `CACHE_URL`，则使用进程内 LRU 缓存和本地 RingBuffer。
+
+## Further Reading
+
+- See [`biance-main/PATCH_NOTES.md`](biance-main/PATCH_NOTES.md) for recent
+  changes and advanced configuration history.
+- Deployment templates for systemd and Nginx are available in
+  [`biance-main/deploy/`](biance-main/deploy/).
