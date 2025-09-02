@@ -7,42 +7,149 @@ from typing import Iterable, List, Optional
 from domain.models import Bar, Interval
 
 DDL = [
-"""
-CREATE TABLE IF NOT EXISTS kline_1m (
-  symbol TEXT NOT NULL,
-  open_time INTEGER NOT NULL,
-  open REAL NOT NULL,
-  high REAL NOT NULL,
-  low REAL NOT NULL,
-  close REAL NOT NULL,
-  volume REAL NOT NULL,
-  close_time INTEGER NOT NULL,
-  quote_volume REAL NOT NULL DEFAULT 0,
-  trades INTEGER NOT NULL DEFAULT 0,
-  taker_buy_base REAL NOT NULL DEFAULT 0,
-  taker_buy_quote REAL NOT NULL DEFAULT 0,
-  is_final INTEGER NOT NULL DEFAULT 1,
-  PRIMARY KEY(symbol, open_time)
-);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_3m (... same columns ...);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_5m (... same columns ...);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_15m (... same columns ...);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_1h (... same columns ...);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_4h (... same columns ...);
-""",
-"""
-CREATE TABLE IF NOT EXISTS kline_1d (... same columns ...);
-"""
+    """
+    CREATE TABLE IF NOT EXISTS kline_1m (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_3m (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_5m (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_15m (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_1h (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_4h (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+    """
+    CREATE TABLE IF NOT EXISTS kline_1d (
+      symbol TEXT NOT NULL,
+      open_time INTEGER NOT NULL,
+      open REAL NOT NULL,
+      high REAL NOT NULL,
+      low REAL NOT NULL,
+      close REAL NOT NULL,
+      volume REAL NOT NULL,
+      close_time INTEGER NOT NULL,
+      quote_volume REAL NOT NULL DEFAULT 0,
+      trades INTEGER NOT NULL DEFAULT 0,
+      taker_buy_base REAL NOT NULL DEFAULT 0,
+      taker_buy_quote REAL NOT NULL DEFAULT 0,
+      is_final INTEGER NOT NULL DEFAULT 1,
+      PRIMARY KEY(symbol, open_time)
+    );
+    """,
+]
+
+INDEX_DDL = [
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_1m_symbol_time ON kline_1m(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_1m_final ON kline_1m(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_3m_symbol_time ON kline_3m(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_3m_final ON kline_3m(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_5m_symbol_time ON kline_5m(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_5m_final ON kline_5m(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_15m_symbol_time ON kline_15m(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_15m_final ON kline_15m(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_1h_symbol_time ON kline_1h(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_1h_final ON kline_1h(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_4h_symbol_time ON kline_4h(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_4h_final ON kline_4h(symbol, open_time) WHERE is_final = 1;",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_kline_1d_symbol_time ON kline_1d(symbol, open_time);",
+    "CREATE INDEX IF NOT EXISTS idx_kline_1d_final ON kline_1d(symbol, open_time) WHERE is_final = 1;",
 ]
 
 def table_for_interval(interval: Interval) -> str:
@@ -63,12 +170,9 @@ async def ensure_schema(db_url: str):
     async with aiosqlite.connect(f"file:{path}?cache=shared", uri=True) as db:
         await db.execute("PRAGMA journal_mode=WAL;")
         await db.execute("PRAGMA busy_timeout=5000;")
-        # Expand DDL bodies (fill '... same columns ...')
-        for template in DDL:
-            stmt = template
-            if "... same columns ..." in stmt:
-                base = DDL[0].split("(", 1)[1].rsplit(");", 1)[0]  # columns of 1m without trailing ');'
-                stmt = template.replace("... same columns ...", base)
+        for stmt in DDL:
+            await db.execute(stmt)
+        for stmt in INDEX_DDL:
             await db.execute(stmt)
         await db.commit()
 
