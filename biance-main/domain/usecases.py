@@ -1,17 +1,7 @@
-import orjson
-from typing import Optional
+import pickle
+from typing import Optional, List
 from domain.ports import KlineRepo, Cache
-from domain.models import Interval
-
-def serialize_binance_klines(bars):
-    out=[]
-    for b in bars:
-        out.append([
-            b.open_time, f"{b.open}", f"{b.high}", f"{b.low}", f"{b.close}",
-            f"{b.volume}", b.close_time, f"{b.quote_volume}", b.trades,
-            f"{b.taker_buy_base}", f"{b.taker_buy_quote}", "0"
-        ])
-    return orjson.dumps(out)
+from domain.models import Interval, Bar
 
 class GetKlines:
     def __init__(self, repo: KlineRepo, cache: Cache, ttl_s: int=10):
@@ -22,11 +12,13 @@ class GetKlines:
                      start: Optional[int], end: Optional[int], limit: int,
                      only_final: bool=True):
         key=f"k:{symbol}:{interval}:{end}:{limit}:{1 if only_final else 0}:{start or 0}"
-        if (b:=await self.cache.get_bytes(key)): return b
-        bars=await self.repo.query(symbol, Interval(interval), start, end, limit, only_final)
-        payload=serialize_binance_klines(bars)
-        await self.cache.set_bytes(key, payload, self.ttl_s)
-        return payload
+        if (b:=await self.cache.get_bytes(key)):
+            return pickle.loads(b)
+        bars: List[Bar] = await self.repo.query(
+            symbol, Interval(interval), start, end, limit, only_final
+        )
+        await self.cache.set_bytes(key, pickle.dumps(bars), self.ttl_s)
+        return bars
 
 class HealthSnapshot:
     def __init__(self, kline_repo: KlineRepo):

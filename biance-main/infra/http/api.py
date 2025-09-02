@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Query, Response
 from app.bootstrap import AppState
+from infra.serialization import serialize_binance_klines
 
 router = APIRouter()
 
@@ -15,9 +16,10 @@ async def get_klines(symbol: str,
                      limit: int = Query(default=500, ge=1, le=1500),
                      includeCurrent: bool = Query(default=False),
                      state: AppState = Depends(get_state)):
-    payload = await state.use_get_klines.handle(
+    bars = await state.use_get_klines.handle(
         symbol, interval, startTime, endTime, limit, only_final=(not includeCurrent)
     )
+    payload = serialize_binance_klines(bars)
     return Response(content=payload, media_type="application/json")
 
 @router.get("/v1/health")
