@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  mtf-node:
+    build: .
+    image: mtf-node:latest
+    container_name: mtf-node
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/metrics"]
+      interval: 30s
+      timeout: 2s
+      retries: 3

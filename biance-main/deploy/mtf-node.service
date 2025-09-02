@@ -1,0 +1,15 @@
+[Unit]
+Description=MTF Data Node
+After=network-online.target
+[Service]
+ExecStart=/usr/bin/env bash -lc 'uvicorn app.main:app --host 0.0.0.0 --port 8000'
+Restart=always
+RestartSec=2s
+MemoryMax=512M
+LimitNOFILE=65536
+TasksMax=512
+User=www-data
+WorkingDirectory=/opt/mtf-node
+Environment=PYTHONUNBUFFERED=1
+[Install]
+WantedBy=multi-user.target
