@@ -13,6 +13,7 @@
 
 ## Quickstart
 ```bash
+cd biance-main
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.sample .env
