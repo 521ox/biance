@@ -12,7 +12,7 @@ def on_startup(state: AppState) -> Callable[[], None]:
         if not (state.settings.enable_fetcher or state.settings.enable_aggregator):
             return
         state.fetcher = Fetcher(state.settings, state.kline_repo)
-        state.aggregator = Aggregator(state.kline_repo)
+        state.aggregator = Aggregator(state.kline_repo, ring=state.ring_buffer)
 
         if state.settings.enable_fetcher:
             await state.fetcher.initial_fetch_all(state.settings.symbols)

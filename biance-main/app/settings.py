@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     symbol_sync_interval_sec: int = Field(default=300, alias="SYMBOL_SYNC_INTERVAL_SEC")
     quote_assets: List[str] = Field(default_factory=lambda: ["USDT"], alias="QUOTE_ASSETS")
     cache_ttl_sec_klines: int = Field(default=10, alias="CACHE_TTL_SEC_KLINES")
+    cache_url: Optional[str] = Field(default=None, alias="CACHE_URL")
     fetch_concurrency: int = Field(default=1, alias="FETCH_CONCURRENCY")
 
     # --- new configuration fields ---
