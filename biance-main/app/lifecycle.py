@@ -16,9 +16,15 @@ def on_startup(state: AppState) -> Callable[[], None]:
 
         if state.settings.enable_fetcher:
             await state.fetcher.initial_fetch_all(state.settings.symbols)
+        async def agg_all_symbols():
+            sem = asyncio.Semaphore(5)
+            async def _run(sym: str):
+                async with sem:
+                    await state.aggregator.aggregate_all(sym)
+            await asyncio.gather(*(_run(sym) for sym in state.settings.symbols))
+
         if state.settings.enable_aggregator:
-            for sym in state.settings.symbols:
-                await state.aggregator.aggregate_all(sym)
+            await agg_all_symbols()
 
         async def loop_fetch():
             retry = 0
@@ -40,8 +46,7 @@ def on_startup(state: AppState) -> Callable[[], None]:
             retry = 0
             while state.settings.enable_aggregator:
                 try:
-                    for sym in state.settings.symbols:
-                        await state.aggregator.aggregate_all(sym)
+                    await agg_all_symbols()
                     retry = 0
                     await asyncio.sleep(60)
                 except Exception as e:
